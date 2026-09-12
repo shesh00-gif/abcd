@@ -1,0 +1,638 @@
+Absolutely. For this exact paper, here is the clean exam-ready version. I’ll give you all Git commands + all Maven answers/commands + the complete pom.xml blocks + Docker commands/Dockerfile.
+
+PART I — GIT & GITHUB — 40 MARKS
+
+1. Set up the codebase locally
+
+git clone <repository-url>
+cd "Apartment Management App"
+
+2. Verify remote connections
+
+git remote -v
+
+3. Check staged, unstaged and untracked changes
+
+git status
+
+4. Create and directly switch to feature branch
+
+git switch -c feature/tenant-registration
+
+5. Show local, remote and current branch
+
+git branch -a
+git branch --show-current
+
+6. Add specific file and commit
+
+git add src/main/java/com/apartment/servlet/TenantServlet.java
+git commit -m "Add tenant registration servlet"
+
+7. Add missed file to last commit without changing message
+
+git add src/main/webapp/WEB-INF/web.xml
+git commit --amend --no-edit
+
+8. Get remote updates WITHOUT changing local files
+
+git fetch origin
+
+Remember: fetch downloads remote changes but does not modify your working files.
+
+9. Incorporate latest remote main into current branch
+
+git pull origin main
+
+10. Rebase feature branch onto updated main
+
+git rebase origin/main
+
+11. Cancel rebase and return to previous state
+
+git rebase --abort
+
+12. Undo faulty commit while preserving history
+
+git revert <commit-hash>
+
+13. Undo last commit but keep changes staged
+
+git reset --soft HEAD~1
+
+14. Remove file from Git but keep it locally
+
+git rm --cached src/main/resources/db-config.env
+
+15. Temporarily save unfinished changes
+
+git stash
+
+16. View stashes and restore latest stash
+
+git stash list
+git stash pop
+
+17. Compare index.jsp between feature and main
+
+git diff main..feature/tenant-registration -- src/main/webapp/index.jsp
+
+18. Compact visual Git timeline
+
+git log --oneline --graph --decorate --all
+
+19. Merge feature into main
+
+git switch main
+git merge feature/tenant-registration
+
+20. Push main and verify same commit point
+
+git push origin main
+git rev-parse HEAD
+git rev-parse origin/main
+
+If both hashes are identical → local and remote are at the same commit.
+
+⸻
+
+PART II — MAVEN — 40 MARKS
+
+Q1. POM Validation & Plugin Debugging
+
+A. POM XML schema violation
+
+The usual error here is incorrect placement of an element in pom.xml.
+
+The important structure is:
+
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.apartment</groupId>
+    <artifactId>apartment-management</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>war</packaging>
+    <dependencies>
+        ...
+    </dependencies>
+    <build>
+        ...
+    </build>
+</project>
+
+Maven validates pom.xml against the Maven POM schema. If an element is placed where that element is not allowed, Maven fails during project model parsing, before compilation starts.
+
+B. Correct Tomcat plugin block
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.tomcat.maven</groupId>
+            <artifactId>tomcat7-maven-plugin</artifactId>
+            <version>2.2</version>
+            <configuration>
+                <url>http://localhost:8080/manager/text</url>
+                <path>/apartment</path>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+
+Run:
+
+mvn tomcat7:run
+
+Why failure happens: Maven cannot properly resolve the plugin when the plugin declaration is incomplete/misconfigured.
+
+⸻
+
+Q2. Dependency Resolution & Lifecycle Failures
+
+A. MySQL dependency
+
+Use:
+
+<dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+    <version>8.0.33</version>
+</dependency>
+
+This provides the MySQL JDBC driver.
+
+⸻
+
+B. Test dependency
+
+The missing element is generally the version.
+
+Correct block:
+
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.13.2</version>
+    <scope>test</scope>
+</dependency>
+
+⸻
+
+Q3. Build Output Analysis
+
+A. WAR filename
+
+Maven normally generates:
+
+artifactId-version.war
+
+So if:
+
+<artifactId>apartment-management</artifactId>
+<version>0.0.1-SNAPSHOT</version>
+<packaging>war</packaging>
+
+then:
+
+target/apartment-management-0.0.1-SNAPSHOT.war
+
+Rule:
+
+artifactId + "-" + version + ".war"
+
+If <finalName> is specified, that name overrides the default.
+
+Example:
+
+<build>
+    <finalName>apartment</finalName>
+</build>
+
+produces:
+
+target/apartment.war
+
+⸻
+
+B. Context path
+
+If the plugin contains:
+
+<path>/apartment</path>
+
+then the application is normally accessed at:
+
+http://localhost:8080/apartment
+
+⸻
+
+Q4. Maven Core Concepts
+
+A. pluginManagement vs plugins
+
+pluginManagement
+
+<pluginManagement>
+    <plugins>
+        <plugin>
+            ...
+        </plugin>
+    </plugins>
+</pluginManagement>
+
+Defines/configures plugins for inheritance or later use. It does not activate the plugin by itself.
+
+plugins
+
+<plugins>
+    <plugin>
+        ...
+    </plugin>
+</plugins>
+
+Actually declares the plugin for the current project, so Maven can execute it.
+
+Easy memory:
+
+pluginManagement = configuration
+
+plugins = activation/use
+
+⸻
+
+B. SNAPSHOT
+
+0.0.1-SNAPSHOT
+
+SNAPSHOT means the version is still under development and can change.
+
+Unlike a release version, Maven may check repositories for a newer snapshot version during dependency resolution.
+
+Release: stable/fixed version.
+
+SNAPSHOT: development version that may be updated.
+
+⸻
+
+Q5. Environment & Debugging
+
+A. Check JDK used by Maven
+
+mvn -v
+
+This shows Maven version and the Java version/JAVA_HOME Maven is using.
+
+⸻
+
+B. Clean + package + full debug output
+
+mvn clean package -X
+
+* clean → removes old build output
+* package → builds/packages application
+* -X → detailed debug output
+
+⸻
+
+Q6. Local Repository & Dependencies
+
+A. Install apartment-analytics.jar
+
+If the POM coordinates are:
+
+groupId    = com.apartment
+artifactId = apartment-analytics
+version    = 1.0
+
+command:
+
+mvn install:install-file -Dfile=apartment-analytics.jar -DgroupId=com.apartment -DartifactId=apartment-analytics -Dversion=1.0 -Dpackaging=jar
+
+General format:
+
+mvn install:install-file -Dfile=<file>.jar -DgroupId=<groupId> -DartifactId=<artifactId> -Dversion=<version> -Dpackaging=jar
+
+⸻
+
+B. Dependency tree
+
+mvn dependency:tree
+
+Shows direct and transitive dependencies.
+
+⸻
+
+Q7. Testing
+
+A. Maven test output locations
+
+Compiled test classes:
+
+target/test-classes/
+
+JUnit/Surefire reports:
+
+target/surefire-reports/
+
+⸻
+
+B. Run only MaintenanceBillingTest
+
+mvn -Dtest=MaintenanceBillingTest test
+
+⸻
+
+C. Package even if tests fail
+
+mvn package -DskipTests
+
+Exam answer: -DskipTests
+
+⸻
+
+Q8. Dependency Analysis & Scope
+
+A. Analyze dependencies
+
+mvn dependency:analyze
+
+Finds unused/used/misdeclared dependencies.
+
+⸻
+
+B. Why provided for Servlet API?
+
+<dependency>
+    <groupId>javax.servlet</groupId>
+    <artifactId>javax.servlet-api</artifactId>
+    <version>4.0.1</version>
+    <scope>provided</scope>
+</dependency>
+
+provided means the dependency is needed to compile the application but is already provided by the application server such as Tomcat at runtime.
+
+If provided is omitted, the Servlet API can be packaged inside the WAR along with Tomcat’s own Servlet API, which can cause duplicate/incompatible classes and runtime conflicts.
+
+⸻
+
+COMPLETE POM.XML — EXAM TEMPLATE
+
+For a typical Maven web application, remember this structure:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.apartment</groupId>
+    <artifactId>apartment-management</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>war</packaging>
+    <dependencies>
+        <!-- Servlet API -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- MySQL -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.0.33</version>
+        </dependency>
+        <!-- JUnit -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>apartment-management</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <url>http://localhost:8080/manager/text</url>
+                    <path>/apartment</path>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+VERY IMPORTANT POM STRUCTURE TO MEMORIZE
+
+project
+ ├── modelVersion
+ ├── groupId
+ ├── artifactId
+ ├── version
+ ├── packaging
+ ├── dependencies
+ │    └── dependency
+ └── build
+      ├── finalName
+      └── plugins
+           └── plugin
+
+⸻
+
+PART III — DOCKER — 20 MARKS
+
+1. Clone repository and enter project
+
+git clone <repository-url>
+cd <project-directory>
+ls
+
+Check for important files:
+
+ls pom.xml Dockerfile
+
+⸻
+
+2. Complete Dockerfile
+
+Since the question specifically says openjdk:17-jdk-slim and /app:
+
+If application is JAR
+
+FROM openjdk:17-jdk-slim
+WORKDIR /app
+COPY target/apartment-management.jar /app/apartment-management.jar
+EXPOSE 8080
+CMD ["java", "-jar", "apartment-management.jar"]
+
+If application is WAR
+
+If the question allows WAR but specifically says to use OpenJDK, the application must have an appropriate server/runtime setup. For a straightforward exam answer, use the JAR version above when the question gives apartment-management.jar.
+
+⸻
+
+3. Build Docker image
+
+docker build -t apartmentapp-image .
+
+* -t → gives image a name/tag
+* . → current directory is the build context
+
+⸻
+
+4. Run container
+
+docker run -d --name apartment-app-container -p 8080:8080 apartmentapp-image
+
+* -d → background
+* --name → container name
+* -p 8080:8080 → host port : container port
+
+⸻
+
+5. Show running containers
+
+docker ps
+
+⸻
+
+6. Show ALL containers
+
+docker ps -a
+
+⸻
+
+7. Enter container interactively
+
+docker exec -it apartment-app-container /bin/bash
+
+If Bash isn’t available:
+
+docker exec -it apartment-app-container /bin/sh
+
+⸻
+
+8. Stop and restart
+
+docker stop apartment-app-container
+docker start apartment-app-container
+
+⸻
+
+9. Save container as new image
+
+Container ID:
+
+0e993d2009a1
+
+Command:
+
+docker commit 0e993d2009a1 your_dockerhub_username/apartmentapp:v1
+
+⸻
+
+10. Login to Docker Hub
+
+docker login
+
+⸻
+
+11. Push image to Docker Hub
+
+docker push your_dockerhub_username/apartmentapp:v1
+
+⸻
+
+12. Logout / remove authentication credentials
+
+docker logout
+
+⸻
+
+🔥 FINAL COMMANDS TO MEMORIZE
+
+Git
+
+git clone <url>
+cd <project>
+git remote -v
+git status
+git switch -c feature/tenant-registration
+git branch -a
+git branch --show-current
+git add <file>
+git commit -m "message"
+git commit --amend --no-edit
+git fetch origin
+git pull origin main
+git rebase origin/main
+git rebase --abort
+git revert <hash>
+git reset --soft HEAD~1
+git rm --cached <file>
+git stash
+git stash list
+git stash pop
+git diff main..feature/tenant-registration -- <file>
+git log --oneline --graph --decorate --all
+git switch main
+git merge feature/tenant-registration
+git push origin main
+git rev-parse HEAD
+git rev-parse origin/main
+
+Maven
+
+mvn -v
+mvn validate
+mvn clean
+mvn compile
+mvn test
+mvn test-compile
+mvn package
+mvn clean package
+mvn clean package -X
+mvn clean install
+mvn package -DskipTests
+mvn tomcat7:run
+mvn dependency:tree
+mvn dependency:analyze
+mvn -Dtest=MaintenanceBillingTest test
+mvn install:install-file -Dfile=<file>.jar -DgroupId=<groupId> -DartifactId=<artifactId> -Dversion=<version> -Dpackaging=jar
+
+Docker
+
+git clone <url>
+cd <project>
+ls
+docker build -t apartmentapp-image .
+docker run -d --name apartment-app-container -p 8080:8080 apartmentapp-image
+docker ps
+docker ps -a
+docker exec -it apartment-app-container /bin/bash
+docker stop apartment-app-container
+docker start apartment-app-container
+docker commit 0e993d2009a1 your_dockerhub_username/apartmentapp:v1
+docker login
+docker push your_dockerhub_username/apartmentapp:v1
+docker logout
+
+⭐ The 3 flows you should be able to write without thinking
+
+Git:
+
+clone → status → branch → add → commit → fetch → pull/rebase → merge → push
+
+Maven:
+
+pom.xml → mvn clean → compile → test → package
+
+Docker:
+
+Maven package → Dockerfile → docker build → docker run → docker ps → Docker Hub
+
+For this exact paper, if you learn these commands + the POM structure + the short theory explanations above, you have the material needed to attempt essentially every mark here.heree
