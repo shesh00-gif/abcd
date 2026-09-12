@@ -120,6 +120,60 @@ The important structure is:
     </build>
 </project>
 
+
+COMPLETE POM.XML — EXAM TEMPLATE
+
+For a typical Maven web application, remember this structure:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.apartment</groupId>
+    <artifactId>apartment-management</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>war</packaging>
+    <dependencies>
+        <!-- Servlet API -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- MySQL -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.0.33</version>
+        </dependency>
+        <!-- JUnit -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>apartment-management</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <url>http://localhost:8080/manager/text</url>
+                    <path>/apartment</path>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+
 Maven validates pom.xml against the Maven POM schema. If an element is placed where that element is not allowed, Maven fails during project model parsing, before compilation starts.
 
 B. Correct Tomcat plugin block
@@ -374,72 +428,8 @@ If provided is omitted, the Servlet API can be packaged inside the WAR along wit
 
 ⸻
 
-COMPLETE POM.XML — EXAM TEMPLATE
 
-For a typical Maven web application, remember this structure:
 
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.apartment</groupId>
-    <artifactId>apartment-management</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
-    <dependencies>
-        <!-- Servlet API -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- MySQL -->
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>8.0.33</version>
-        </dependency>
-        <!-- JUnit -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-    <build>
-        <finalName>apartment-management</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <url>http://localhost:8080/manager/text</url>
-                    <path>/apartment</path>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-</project>
-
-VERY IMPORTANT POM STRUCTURE TO MEMORIZE
-
-project
- ├── modelVersion
- ├── groupId
- ├── artifactId
- ├── version
- ├── packaging
- ├── dependencies
- │    └── dependency
- └── build
-      ├── finalName
-      └── plugins
-           └── plugin
 
 ⸻
 
@@ -553,85 +543,6 @@ docker logout
 
 ⸻
 
-🔥 FINAL COMMANDS TO MEMORIZE
-
-Git
-
-git clone <url>
-cd <project>
-git remote -v
-git status
-git switch -c feature/tenant-registration
-git branch -a
-git branch --show-current
-git add <file>
-git commit -m "message"
-git commit --amend --no-edit
-git fetch origin
-git pull origin main
-git rebase origin/main
-git rebase --abort
-git revert <hash>
-git reset --soft HEAD~1
-git rm --cached <file>
-git stash
-git stash list
-git stash pop
-git diff main..feature/tenant-registration -- <file>
-git log --oneline --graph --decorate --all
-git switch main
-git merge feature/tenant-registration
-git push origin main
-git rev-parse HEAD
-git rev-parse origin/main
-
-Maven
-
-mvn -v
-mvn validate
-mvn clean
-mvn compile
-mvn test
-mvn test-compile
-mvn package
-mvn clean package
-mvn clean package -X
-mvn clean install
-mvn package -DskipTests
-mvn tomcat7:run
-mvn dependency:tree
-mvn dependency:analyze
-mvn -Dtest=MaintenanceBillingTest test
-mvn install:install-file -Dfile=<file>.jar -DgroupId=<groupId> -DartifactId=<artifactId> -Dversion=<version> -Dpackaging=jar
-
-Docker
-
-git clone <url>
-cd <project>
-ls
-docker build -t apartmentapp-image .
-docker run -d --name apartment-app-container -p 8080:8080 apartmentapp-image
-docker ps
-docker ps -a
-docker exec -it apartment-app-container /bin/bash
-docker stop apartment-app-container
-docker start apartment-app-container
-docker commit 0e993d2009a1 your_dockerhub_username/apartmentapp:v1
-docker login
-docker push your_dockerhub_username/apartmentapp:v1
-docker logout
-
-⭐ The 3 flows you should be able to write without thinking
-
-Git:
-
-clone → status → branch → add → commit → fetch → pull/rebase → merge → push
-
-Maven:
-
-pom.xml → mvn clean → compile → test → package
-
-Docker:
 
 Maven package → Dockerfile → docker build → docker run → docker ps → Docker Hub
 
